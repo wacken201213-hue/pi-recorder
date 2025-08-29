@@ -82,10 +82,17 @@ def start_audio_recording():
     global audio_proc, audio_start_time
     if audio_proc is not None and audio_proc.poll() is None:
         return
+    
+    # Audio-Level-Monitoring stoppen bevor Aufnahme startet
+    stop_audio_level_monitoring()
+    time.sleep(0.5)  # Kurz warten damit Gerät frei wird
+    
     # Dateinamen abfragen
     root = tk._default_root
     filename = simpledialog.askstring("Dateiname", "Dateiname für die Audioaufnahme (z.B. audio1.wav):", parent=root)
     if not filename:
+        # Falls abgebrochen, Level-Monitoring wieder starten
+        start_audio_level_monitoring()
         return
     if not filename.lower().endswith(".wav"):
         filename += ".wav"
@@ -102,6 +109,8 @@ def start_audio_recording():
             audio_proc = subprocess.Popen(audio_cmd)
             audio_start_time = time.time()
         except Exception as e:
+            # Bei Fehler Level-Monitoring wieder starten
+            start_audio_level_monitoring()
             messagebox.showerror("Fehler", f"ffmpeg Audio konnte nicht gestartet werden:\n{e}")
     threading.Thread(target=run_audio_ffmpeg, daemon=True).start()
 
@@ -111,6 +120,10 @@ def stop_audio_recording():
         audio_proc.terminate()
         audio_proc = None
         audio_start_time = None
+        
+    # Nach dem Stoppen der Aufnahme Level-Monitoring wieder starten
+    time.sleep(0.5)  # Kurz warten damit Gerät frei wird
+    start_audio_level_monitoring()
 
 # ffmpeg Videoaufnahme
 
@@ -341,37 +354,52 @@ class App:
                     fill="#1a1a1a", outline="#666666"
                 )
                 
-                # Level-Balken
-                if current_audio_level > 0:
-                    level_width = int((current_audio_level / 100) * (canvas_width - 4))
-                    
-                    # Farbe basierend auf Pegel
-                    if current_audio_level < 50:
-                        color = "#4CAF50"  # Grün
-                    elif current_audio_level < 80:
-                        color = "#FFC107"  # Gelb
-                    else:
-                        color = "#F44336"  # Rot
-                    
+                # Prüfe ob Aufnahme läuft
+                global audio_proc, audio_start_time
+                is_recording = audio_proc is not None and audio_proc.poll() is None
+                
+                if is_recording:
+                    # Während Aufnahme: Zeige "Recording..." Anzeige
                     self.audio_level_canvas.create_rectangle(
-                        2, 2, 2 + level_width, canvas_height - 2,
-                        fill=color, outline=""
+                        2, 2, canvas_width - 2, canvas_height - 2,
+                        fill="#F44336", outline=""
                     )
-                
-                # Skalierung (25%, 50%, 75%, 100%)
-                for i in [25, 50, 75, 100]:
-                    x = int((i / 100) * (canvas_width - 4)) + 2
-                    self.audio_level_canvas.create_line(
-                        x, 0, x, canvas_height,
-                        fill="#666666", width=1
+                    self.audio_level_canvas.create_text(
+                        canvas_width // 2, canvas_height // 2,
+                        text="● RECORDING", fill="white", font=("Arial", 10, "bold")
                     )
-                
-                # Level-Text
-                level_text = f"{current_audio_level:.0f}%"
-                self.audio_level_canvas.create_text(
-                    canvas_width // 2, canvas_height // 2,
-                    text=level_text, fill="white", font=("Arial", 10, "bold")
-                )
+                else:
+                    # Nur Level-Balken zeigen wenn nicht aufgenommen wird
+                    if current_audio_level > 0:
+                        level_width = int((current_audio_level / 100) * (canvas_width - 4))
+                        
+                        # Farbe basierend auf Pegel
+                        if current_audio_level < 50:
+                            color = "#4CAF50"  # Grün
+                        elif current_audio_level < 80:
+                            color = "#FFC107"  # Gelb
+                        else:
+                            color = "#F44336"  # Rot
+                        
+                        self.audio_level_canvas.create_rectangle(
+                            2, 2, 2 + level_width, canvas_height - 2,
+                            fill=color, outline=""
+                        )
+                    
+                    # Skalierung (25%, 50%, 75%, 100%)
+                    for i in [25, 50, 75, 100]:
+                        x = int((i / 100) * (canvas_width - 4)) + 2
+                        self.audio_level_canvas.create_line(
+                            x, 0, x, canvas_height,
+                            fill="#666666", width=1
+                        )
+                    
+                    # Level-Text
+                    level_text = f"{current_audio_level:.0f}%"
+                    self.audio_level_canvas.create_text(
+                        canvas_width // 2, canvas_height // 2,
+                        text=level_text, fill="white", font=("Arial", 10, "bold")
+                    )
                 
             except Exception as e:
                 print(f"Level-Display Update Fehler: {e}")
