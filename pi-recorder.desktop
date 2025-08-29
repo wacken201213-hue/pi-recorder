@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Pi Recorder
+Comment=Professional Audio & Video Recording Station
+Exec=/home/pi/pi-recorder/pi-recorder.sh
+Icon=/home/pi/pi-recorder/pi-recorder-icon.png
+Path=/home/pi/pi-recorder
+Terminal=false
+StartupNotify=true
+Categories=AudioVideo;Audio;Video;Recorder;
+Keywords=audio;video;recording;touchscreen;
