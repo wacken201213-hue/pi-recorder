@@ -15,15 +15,15 @@ A professional-grade recording application designed for 7-inch touchscreens (800
 
 ![Pi Recorder Screenshot](screenshot.png)
 
-## 📋 Voraussetzungen
-- Raspberry Pi (getestet auf Pi 3B+)
+## 📋 Requirements
+- Raspberry Pi (tested on Pi 3B+)
 - 7" Touchscreen Display (800x480)
-- Audio-Hardware (USB-Mikrofon oder Audio-Interface)
-- Video-Hardware (USB Video Grabber für Video-Aufnahmen)
+- Audio Hardware (USB microphone or audio interface)
+- Video Hardware (USB Video Grabber for video recordings)
 
 ## 🛠️ Installation
 
-### Schnellinstallation
+### Quick Installation
 ```bash
 git clone https://github.com/wacken201213-hue/pi-recorder.git
 cd pi-recorder
@@ -31,141 +31,141 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Manuelle Installation
+### Manual Installation
 ```bash
-# Abhängigkeiten installieren
+# Install dependencies
 sudo apt update
 sudo apt install python3 python3-tk ffmpeg alsa-utils
 
-# Projekt clonen
+# Clone project
 git clone https://github.com/wacken201213-hue/pi-recorder.git
 cd pi-recorder
 
-# Startscript ausführbar machen
+# Make start script executable
 chmod +x pi-recorder.sh
 
-# Desktop-Integration (optional)
+# Desktop integration (optional)
 cp pi-recorder.desktop ~/.local/share/applications/
 ```
 
-## 🚀 Starten
+## 🚀 Usage
 ```bash
 ./pi-recorder.sh
 ```
 
-Oder über das Desktop-Icon / Anwendungsmenü: **Audio/Video → Pi Recorder**
+Or via Desktop Icon / Application Menu: **Audio/Video → Pi Recorder**
 
-## 📱 Bedienung
+## 📱 Operation
 
-### Hauptmenü
-- **[Audio]** - Reine Audio-Aufnahme
-- **[Video]** - Video-Aufnahme mit Ton
-- **[− Minimieren]** - Anwendung minimieren
-- **[× Beenden]** - Anwendung schließen
+### Main Menu
+- **[Audio]** - Pure audio recording
+- **[Video]** - Video recording with audio
+- **[− Minimize]** - Minimize application
+- **[× Exit]** - Close application
 
-### Audio-Aufnahme
-1. **[Aufnahme starten]** → Dateiname eingeben → Aufnahme läuft
-2. **Real-time Audio Level Meter** zeigt visuellen Pegel an
-3. **Laufzeit-Anzeige** zeigt aktuelle Zeit
-4. **[Aufnahme stoppen]** → Datei gespeichert
+### Audio Recording
+1. **[Start Recording]** → Enter filename → Recording starts
+2. **Real-time Audio Level Meter** shows visual level feedback
+3. **Duration Display** shows current recording time
+4. **[Stop Recording]** → File saved
 
-### Video-Aufnahme
-1. **[Video Start]** → Dateiname eingeben → Aufnahme läuft  
-2. **Laufzeit-Anzeige** zeigt aktuelle Zeit
-3. **[Video Stop]** → Datei gespeichert
+### Video Recording
+1. **[Video Start]** → Enter filename → Recording starts  
+2. **Duration Display** shows current recording time
+3. **[Video Stop]** → File saved
 
-### Tastenkürzel
-- **ESC** - App beenden
-- **F11** - Vollbild ein/aus
+### Keyboard Shortcuts
+- **ESC** - Exit application
+- **F11** - Toggle fullscreen
 
-## ⚙️ Konfiguration
+## ⚙️ Configuration
 
-### Audio-Geräte
-Die Anwendung verwendet standardmäßig:
-- **Audio-Aufnahme:** `plughw:1,0` (Card 1)
-- **Video-Audio:** `hw:2,0` (Video Grabber)
+### Audio Devices
+The application uses by default:
+- **Audio Recording:** `plughw:1,0` (Card 1)
+- **Video Audio:** `hw:2,0` (Video Grabber)
 
-Audio-Geräte testen:
+Test audio devices:
 ```bash
-arecord -l  # Verfügbare Geräte anzeigen
-arecord -D plughw:1,0 -d 5 -f cd test.wav  # Test-Aufnahme
+arecord -l  # List available devices
+arecord -D plughw:1,0 -d 5 -f cd test.wav  # Test recording
 ```
 
-### Video-Einstellungen
+### Video Settings
 - **Format:** MP4 (H.264 + AAC)
-- **Auflösung:** 720x576, 25fps
-- **Video-Gerät:** `/dev/video0`
+- **Resolution:** 720x576, 25fps
+- **Video Device:** `/dev/video0`
 
-## 🎛️ Technische Details
+## 🎛️ Technical Details
 
-### Audio-Aufnahme
+### Audio Recording
 - **Codec:** PCM 32-bit Little Endian
-- **Samplerate:** 44.1 kHz
-- **Kanäle:** Stereo
-- **Format:** WAV (unkomprimiert)
-- **Audio-Monitoring:** Real-time VU meter mit Farbkodierung
-  - Grün: 0-50% (Normaler Pegel)
-  - Gelb: 50-80% (Hoher Pegel)  
-  - Rot: 80-100% (Kritischer Pegel)
+- **Sample Rate:** 44.1 kHz
+- **Channels:** Stereo
+- **Format:** WAV (uncompressed)
+- **Audio Monitoring:** Real-time VU meter with color coding
+  - Green: 0-50% (Normal level)
+  - Yellow: 50-80% (High level)  
+  - Red: 80-100% (Critical level)
 
-### Video-Aufnahme
-- **Video-Codec:** libx264 (ultrafast preset)
-- **Audio-Codec:** AAC, 192 kbit/s
+### Video Recording
+- **Video Codec:** libx264 (ultrafast preset)
+- **Audio Codec:** AAC, 192 kbit/s
 - **Container:** MP4
 
-## 🔧 Problembehandlung
+## 🔧 Troubleshooting
 
-### Audio funktioniert nicht
+### Audio not working
 ```bash
-# ALSA-Konfiguration prüfen
+# Check ALSA configuration
 cat /proc/asound/cards
 
-# Andere Audio-Karte versuchen
-# In main.py: "plughw:1,0" → "plughw:0,0"
+# Try different audio card
+# In main.py: change "plughw:1,0" → "plughw:0,0"
 ```
 
-### Video funktioniert nicht
+### Video not working
 ```bash
-# Video-Geräte prüfen
+# Check video devices
 ls /dev/video*
 
-# ffmpeg-Test
+# Test ffmpeg
 ffmpeg -f v4l2 -i /dev/video0 -t 5 test.mp4
 ```
 
-### Touchscreen kalibrieren
+### Calibrate touchscreen
 ```bash
 sudo apt install xinput-calibrator
 xinput_calibrator
 ```
 
-## 📁 Projektstruktur
+## 📁 Project Structure
 ```
 pi-recorder/
-├── main.py                 # Hauptanwendung (Python/Tkinter)
-├── pi-recorder.sh          # Startscript
-├── pi-recorder.desktop     # Desktop-Integration
-├── pi-recorder-icon.png    # Anwendungs-Icon
-├── install.sh              # Installationsskript
-└── README.md              # Diese Datei
+├── main.py                 # Main application (Python/Tkinter)
+├── pi-recorder.sh          # Start script
+├── pi-recorder.desktop     # Desktop integration
+├── pi-recorder-icon.png    # Application icon
+├── install.sh              # Installation script
+└── README.md              # This file
 ```
 
-## 🤝 Beitragen
-Pull Requests und Issues sind willkommen!
+## 🤝 Contributing
+Pull Requests and Issues are welcome!
 
-1. Repository forken
-2. Feature-Branch erstellen (`git checkout -b feature/amazing-feature`)
-3. Änderungen committen (`git commit -m 'Add amazing feature'`)
-4. Branch pushen (`git push origin feature/amazing-feature`)
-5. Pull Request erstellen
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push branch (`git push origin feature/amazing-feature`)
+5. Create Pull Request
 
-## 📝 Lizenz
-Dieses Projekt steht unter der [MIT License](LICENSE).
+## 📝 License
+This project is licensed under the [MIT License](LICENSE).
 
-## 🙏 Danksagungen
-- Entwickelt für Raspberry Pi Foundation
-- Getestet auf Raspberry Pi 3B+ mit offiziellem 7" Touchscreen
-- Verwendet ffmpeg für Audio/Video-Verarbeitung
+## 🙏 Acknowledgments
+- Developed for the Raspberry Pi Foundation
+- Tested on Raspberry Pi 3B+ with official 7" touchscreen
+- Uses ffmpeg for audio/video processing
 
 ---
-**Entwickelt für die Raspberry Pi Community 🥧❤️**
+**Developed for the Raspberry Pi Community 🥧❤️**
